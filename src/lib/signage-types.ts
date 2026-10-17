@@ -29,4 +29,8 @@ export type DisplayContent = {
   // compares this across polls to tell "nothing changed" from "a new page
   // just got pushed" without caring about the page's id or name alone.
   updatedAt: string | null;
+  // Set only while the district-wide emergency broadcast is active. When
+  // present, the display player shows this instead of the normal item
+  // loop, regardless of what's assigned to the screen.
+  emergencyMessage: string | null;
 };

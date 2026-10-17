@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { DisplayContent } from "@/lib/signage-types";
+import { brandingFor } from "@/lib/branding";
 
 // How often the display polls for new content. Every poll doubles as a
 // heartbeat, so this also bounds how quickly the admin "online" status
@@ -73,6 +74,7 @@ export function DisplayPlayer({
     };
   }, [screenId]);
 
+  const brand = brandingFor(content.brandingGroup);
   const items = content.items;
   const safeIndex = items.length === 0 ? 0 : index % items.length;
   const current = items[safeIndex] ?? null;
@@ -83,17 +85,44 @@ export function DisplayPlayer({
 
   useEffect(() => {
     if (!current) return;
-    const ms = current.kind === "video" ? VIDEO_FALLBACK_MS : Math.max(1, current.duration_seconds) * 1000;
+    const ms =
+      current.kind === "video" ? VIDEO_FALLBACK_MS : Math.max(1, current.duration_seconds) * 1000;
     const timer = setTimeout(advance, ms);
     return () => clearTimeout(timer);
   }, [current, advance]);
 
+  if (content.emergencyMessage) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-red-700 p-12">
+        <div className="max-w-4xl text-center">
+          <div className="text-sm font-semibold uppercase tracking-widest text-red-100">
+            Emergency Broadcast
+          </div>
+          <div className="mt-4 whitespace-pre-wrap text-4xl font-semibold leading-tight text-white">
+            {content.emergencyMessage}
+          </div>
+        </div>
+        {debug && (
+          <div className="absolute bottom-2 right-2 rounded bg-black/40 px-2 py-1 font-mono text-[10px] text-red-100">
+            screen {screenId.slice(0, 8)} · last poll{" "}
+            {lastPollOk ? lastPollOk.toLocaleTimeString() : "none yet"}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black">
+    <div
+      className="fixed inset-0 flex items-center justify-center"
+      style={{ backgroundColor: brand.background }}
+    >
       {!current && (
-        <div className="text-center text-gray-500">
-          <div className="text-lg font-medium text-gray-300">{content.screenName}</div>
-          <div className="mt-1 text-sm">Nothing assigned to this screen yet</div>
+        <div className="text-center">
+          <div className="text-lg font-medium" style={{ color: brand.accent }}>
+            {content.screenName}
+          </div>
+          <div className="mt-1 text-sm text-gray-400">Nothing assigned to this screen yet</div>
         </div>
       )}
       {current?.kind === "image" && (

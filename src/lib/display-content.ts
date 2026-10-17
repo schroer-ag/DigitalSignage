@@ -16,6 +16,8 @@ type ScreenRow = {
 
 type AssetRow = { id: string; kind: AssetKind; url: string; label: string | null };
 
+type BroadcastRow = { active: boolean; message: string | null; activated_at: string | null };
+
 // Shared by the public /display page (first paint) and its polling API
 // route (everything after). `heartbeat: true` stamps screens.last_seen_at
 // first -- the admin "online/offline" status is just whether this has run
@@ -43,6 +45,26 @@ export async function getDisplayContent(
   if (!data) return null;
   const row = data as unknown as ScreenRow;
 
+  // A district-wide emergency broadcast overrides every screen's normal
+  // assignment -- check it before even looking at what's assigned.
+  const { data: broadcastData } = await supabase
+    .from("emergency_broadcast")
+    .select("active, message, activated_at")
+    .eq("id", 1)
+    .maybeSingle();
+  const broadcast = broadcastData as BroadcastRow | null;
+
+  if (broadcast?.active) {
+    return {
+      screenName: row.name,
+      brandingGroup: row.branding_group,
+      pageName: "Emergency Broadcast",
+      items: [],
+      updatedAt: broadcast.activated_at,
+      emergencyMessage: broadcast.message ?? "Emergency broadcast is active.",
+    };
+  }
+
   const assignment = Array.isArray(row.screen_assignments)
     ? row.screen_assignments[0]
     : row.screen_assignments;
@@ -55,6 +77,7 @@ export async function getDisplayContent(
       pageName: null,
       items: [],
       updatedAt: null,
+      emergencyMessage: null,
     };
   }
 
@@ -85,5 +108,6 @@ export async function getDisplayContent(
     pageName: page.name,
     items,
     updatedAt: page.updated_at,
+    emergencyMessage: null,
   };
 }

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { registerScreen, assignUserToScreen } from "./actions";
 import { CopyLinkButton } from "./CopyLinkButton";
+import { BrandingBadge } from "@/components/BrandingBadge";
 
 const ONLINE_WINDOW_MS = 2 * 60 * 1000; // 2 minutes
 
@@ -91,15 +92,7 @@ export default async function ScreensPage() {
                     <div className="text-xs text-gray-400">{screen.building ?? "—"}</div>
                   </td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        screen.branding_group === "ffa"
-                          ? "bg-blue-50 text-blue-800"
-                          : "bg-indigo-50 text-indigo-700"
-                      }`}
-                    >
-                      {screen.branding_group === "ffa" ? "FFA" : "District"}
-                    </span>
+                    <BrandingBadge group={screen.branding_group} />
                   </td>
                   <td className="px-4 py-3">
                     <span className={online ? "text-green-700" : "text-red-700"}>
