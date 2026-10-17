@@ -1,0 +1,140 @@
+import { createClient } from "@/lib/supabase/server";
+import { registerScreen, assignUserToScreen } from "./actions";
+
+const ONLINE_WINDOW_MS = 2 * 60 * 1000; // 2 minutes
+
+function isOnline(lastSeenAt: string | null): boolean {
+  if (!lastSeenAt) return false;
+  return Date.now() - new Date(lastSeenAt).getTime() < ONLINE_WINDOW_MS;
+}
+
+type ScreenRow = {
+  id: string;
+  name: string;
+  building: string | null;
+  branding_group: string;
+  last_seen_at: string | null;
+  screen_assignments: { page: { name: string } | null } | { page: { name: string } | null }[] | null;
+};
+
+type UserRow = { id: string; display_name: string | null; email: string };
+
+function currentPageName(row: ScreenRow): string | null {
+  const assignment = Array.isArray(row.screen_assignments)
+    ? row.screen_assignments[0]
+    : row.screen_assignments;
+  return assignment?.page?.name ?? null;
+}
+
+export default async function ScreensPage() {
+  const supabase = await createClient();
+
+  const [screensResult, usersResult] = await Promise.all([
+    supabase
+      .from("screens")
+      .select(
+        "id, name, building, branding_group, last_seen_at, screen_assignments(page:pages(name))"
+      )
+      .order("name"),
+    supabase.from("users").select("id, display_name, email").order("display_name"),
+  ]);
+
+  const screens = (screensResult.data ?? []) as unknown as ScreenRow[];
+  const users = (usersResult.data ?? []) as unknown as UserRow[];
+
+  return (
+    <div>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-lg font-semibold">Screens</h1>
+          <p className="text-sm text-gray-500">
+            Every registered display, who it belongs to, and what&apos;s live on it.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 overflow-x-auto rounded-lg border border-gray-200">
+        <table className="w-full text-sm">
+          <thead className="border-b border-gray-200 text-left text-xs uppercase text-gray-400">
+            <tr>
+              <th className="px-4 py-2">Screen</th>
+              <th className="px-4 py-2">Branding</th>
+              <th className="px-4 py-2">Status</th>
+              <th className="px-4 py-2">Now playing</th>
+              <th className="px-4 py-2">Assign</th>
+            </tr>
+          </thead>
+          <tbody>
+            {screens.map((screen) => {
+              const pageName = currentPageName(screen);
+              const online = isOnline(screen.last_seen_at);
+
+              return (
+                <tr key={screen.id} className="border-b border-gray-100 last:border-0">
+                  <td className="px-4 py-3">
+                    <div className="font-medium">{screen.name}</div>
+                    <div className="text-xs text-gray-400">{screen.building ?? "—"}</div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        screen.branding_group === "ffa"
+                          ? "bg-blue-50 text-blue-800"
+                          : "bg-indigo-50 text-indigo-700"
+                      }`}
+                    >
+                      {screen.branding_group === "ffa" ? "FFA" : "District"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={online ? "text-green-700" : "text-red-700"}>
+                      {online ? "Online" : "Offline"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-500">{pageName ?? "Nothing assigned"}</td>
+                  <td className="px-4 py-3">
+                    <form action={assignUserToScreen} className="flex gap-2">
+                      <input type="hidden" name="screen_id" value={screen.id} />
+                      <select name="user_id" className="rounded border border-gray-200 text-xs" required>
+                        <option value="">Choose a user…</option>
+                        {users.map((u) => (
+                          <option key={u.id} value={u.id}>
+                            {u.display_name ?? u.email}
+                          </option>
+                        ))}
+                      </select>
+                      <button className="rounded border border-gray-300 px-2 text-xs font-medium hover:bg-gray-50">
+                        Assign
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <form action={registerScreen} className="mt-6 flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 p-4">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-gray-500">Name</label>
+          <input name="name" required className="rounded border border-gray-200 px-2 py-1 text-sm" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-gray-500">Building</label>
+          <input name="building" className="rounded border border-gray-200 px-2 py-1 text-sm" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-gray-500">Branding</label>
+          <select name="branding_group" className="rounded border border-gray-200 px-2 py-1 text-sm" defaultValue="district">
+            <option value="ffa">FFA</option>
+            <option value="district">District</option>
+          </select>
+        </div>
+        <button className="rounded bg-teal-700 px-3 py-1.5 text-sm font-medium text-white hover:opacity-90">
+          Register screen
+        </button>
+      </form>
+    </div>
+  );
+}
