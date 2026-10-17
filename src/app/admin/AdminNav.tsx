@@ -32,6 +32,12 @@ export function AdminNav({ displayName }: { displayName: string }) {
           );
         })}
       </nav>
+      <Link
+        href="/my/pages"
+        className="mt-4 block rounded-md px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-100"
+      >
+        My Workspace →
+      </Link>
       <div className="mt-auto pt-6 text-xs text-gray-400">
         Signed in as
         <div className="font-medium text-gray-700">{displayName}</div>

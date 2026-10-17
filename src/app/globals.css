@@ -1,8 +1,19 @@
 @import "tailwindcss";
 
+/* This is a light-themed console -- every page is built with gray-50/gray-200
+   Tailwind cards and plain form controls that assume a white background, with
+   no dark-theme styling anywhere. The create-next-app default dark-mode media
+   query that used to live here flipped the page near-black whenever a
+   visitor's OS/browser was in dark mode, but left form inputs, card
+   backgrounds, and borders rendering in their light-mode colors -- a mismatch
+   that looked broken rather than like an actual dark theme. Forcing light
+   mode (and telling the browser so via color-scheme, so native form controls
+   match too) is simpler and more correct than building out real dark-mode
+   support for an admin console nobody asked for one on. */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -10,13 +21,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
