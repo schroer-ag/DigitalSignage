@@ -4,6 +4,9 @@ import { NextResponse, type NextRequest } from "next/server";
 // Refreshes the Supabase auth session on every request and keeps the
 // session cookie in sync. Also enforces the allowed-email-domain gate
 // so only crockerffa.com / crockerschools.org accounts get past sign-in.
+// The public /display pages and their polling API are excluded below --
+// kiosks have no session to refresh, and shouldn't pay for this on every
+// 20-second poll.
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -36,6 +39,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|display/).*)",
+    "/((?!_next/static|_next/image|favicon.ico|display/|api/screens/).*)",
   ],
 };
