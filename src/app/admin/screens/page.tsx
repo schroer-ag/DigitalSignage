@@ -1,11 +1,23 @@
 import { createClient } from "@/lib/supabase/server";
 import { registerScreen, assignUserToScreen } from "./actions";
+import { CopyLinkButton } from "./CopyLinkButton";
 
 const ONLINE_WINDOW_MS = 2 * 60 * 1000; // 2 minutes
 
 function isOnline(lastSeenAt: string | null): boolean {
   if (!lastSeenAt) return false;
   return Date.now() - new Date(lastSeenAt).getTime() < ONLINE_WINDOW_MS;
+}
+
+function timeAgo(iso: string): string {
+  const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
 }
 
 type ScreenRow = {
@@ -48,7 +60,9 @@ export default async function ScreensPage() {
         <div>
           <h1 className="text-lg font-semibold">Screens</h1>
           <p className="text-sm text-gray-500">
-            Every registered display, who it belongs to, and what&apos;s live on it.
+            Every registered display, who it belongs to, and what&apos;s live on it. Setting up a
+            new stick? Register it below, then grab its link here for Fully Kiosk Browser&apos;s
+            start URL.
           </p>
         </div>
       </div>
@@ -61,6 +75,7 @@ export default async function ScreensPage() {
               <th className="px-4 py-2">Branding</th>
               <th className="px-4 py-2">Status</th>
               <th className="px-4 py-2">Now playing</th>
+              <th className="px-4 py-2">Display link</th>
               <th className="px-4 py-2">Assign</th>
             </tr>
           </thead>
@@ -90,8 +105,17 @@ export default async function ScreensPage() {
                     <span className={online ? "text-green-700" : "text-red-700"}>
                       {online ? "Online" : "Offline"}
                     </span>
+                    <div className="text-xs text-gray-400">
+                      {screen.last_seen_at ? `last seen ${timeAgo(screen.last_seen_at)}` : "never seen"}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-gray-500">{pageName ?? "Nothing assigned"}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <code className="text-xs text-gray-400">{screen.id.slice(0, 8)}…</code>
+                      <CopyLinkButton screenId={screen.id} />
+                    </div>
+                  </td>
                   <td className="px-4 py-3">
                     <form action={assignUserToScreen} className="flex gap-2">
                       <input type="hidden" name="screen_id" value={screen.id} />
