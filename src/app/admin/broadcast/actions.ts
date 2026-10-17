@@ -1,12 +1,12 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUser } from "@/lib/current-user";
+import { requireSuperAdmin } from "@/lib/require-role";
 import { revalidatePath } from "next/cache";
 
 export async function activateBroadcast(formData: FormData) {
-  const user = await getCurrentUser();
-  if (!user || user.role !== "super_admin") return;
+  const user = await requireSuperAdmin();
+  if (!user) return;
 
   const message = String(formData.get("message") ?? "").trim();
   if (!message) return;
@@ -26,8 +26,7 @@ export async function activateBroadcast(formData: FormData) {
 }
 
 export async function deactivateBroadcast() {
-  const user = await getCurrentUser();
-  if (!user || user.role !== "super_admin") return;
+  if (!(await requireSuperAdmin())) return;
 
   const supabase = await createClient();
   await supabase.from("emergency_broadcast").update({ active: false }).eq("id", 1);

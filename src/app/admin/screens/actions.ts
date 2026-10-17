@@ -1,9 +1,12 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { requireSuperAdmin } from "@/lib/require-role";
 import { revalidatePath } from "next/cache";
 
 export async function registerScreen(formData: FormData) {
+  if (!(await requireSuperAdmin())) return;
+
   const name = String(formData.get("name") ?? "").trim();
   const building = String(formData.get("building") ?? "").trim();
   const brandingGroup = String(formData.get("branding_group") ?? "district");
@@ -21,6 +24,8 @@ export async function registerScreen(formData: FormData) {
 }
 
 export async function assignUserToScreen(formData: FormData) {
+  if (!(await requireSuperAdmin())) return;
+
   const screenId = String(formData.get("screen_id") ?? "");
   const userId = String(formData.get("user_id") ?? "");
   if (!screenId || !userId) return;
