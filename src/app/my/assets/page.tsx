@@ -31,12 +31,12 @@ type AssetRow = Asset & { owner: { display_name: string | null; email: string } 
 export default async function MyAssetsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ org?: string; folder?: string }>;
+  searchParams: Promise<{ org?: string; folder?: string; error?: string }>;
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const { org: orgParam, folder: folderParam } = await searchParams;
+  const { org: orgParam, folder: folderParam, error: errorParam } = await searchParams;
   const orgs = await getUserOrgs();
 
   if (orgs.length === 0) {
@@ -83,6 +83,12 @@ export default async function MyAssetsPage({
         Images, videos, websites, and calendar agendas you can drop into a page. Anyone with
         access to {org === "ffa" ? "FFA" : "District"} can see and edit everything filed here.
       </p>
+
+      {errorParam && (
+        <p className="mt-3 rounded-md bg-red-50 p-3 text-sm text-red-700">
+          Couldn&apos;t save: {errorParam}
+        </p>
+      )}
 
       <div className="mt-4 flex border-b border-gray-200 text-sm font-medium">
         {orgs.map((o) => (

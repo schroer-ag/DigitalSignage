@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/current-user";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function createAsset(formData: FormData) {
   const user = await getCurrentUser();
@@ -20,7 +21,7 @@ export async function createAsset(formData: FormData) {
   // RLS (has_org_access) is what actually enforces that this user may
   // file something under `org` -- a mismatched org here just gets
   // rejected by the database, not silently allowed.
-  await supabase.from("assets").insert({
+  const { error } = await supabase.from("assets").insert({
     owner_id: user.id,
     kind,
     org,
@@ -28,6 +29,15 @@ export async function createAsset(formData: FormData) {
     url,
     label: label || null,
   });
+
+  // A failed insert (RLS denial, a bad constraint, anything) used to just
+  // silently do nothing -- bounce back to the same folder with the
+  // actual database error instead, so "it won't save" has a reason.
+  if (error) {
+    const params = new URLSearchParams({ org, error: error.message });
+    if (folderId) params.set("folder", folderId);
+    redirect(`/my/assets?${params.toString()}`);
+  }
 
   revalidatePath("/my/assets");
 }
