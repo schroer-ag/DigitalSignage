@@ -46,6 +46,12 @@ export function SignagePreview({ items }: { items: PreviewItem[] }) {
         {current.kind === "embed" && (
           <iframe src={current.url} className="h-full w-full border-0" title={label} />
         )}
+        {current.kind === "calendar_agenda" && (
+          <div className="flex h-full w-full flex-col items-center justify-center bg-[#00264d] text-white">
+            <div className="text-sm font-semibold uppercase tracking-wide text-[#FFCD00]">Calendar Agenda</div>
+            <div className="mt-1 text-xs text-white/60">Live events render on the actual display</div>
+          </div>
+        )}
       </div>
       <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
         <span className="truncate">{label}</span>

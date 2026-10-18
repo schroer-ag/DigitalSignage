@@ -1,5 +1,6 @@
 import { createServiceClient } from "@/lib/supabase/service";
-import type { AssetKind, DisplayContent } from "@/lib/signage-types";
+import { getUpcomingEvents } from "@/lib/google-calendar";
+import type { AssetKind, DisplayContent, DisplayItem } from "@/lib/signage-types";
 
 type PageRow = {
   id: string;
@@ -88,25 +89,35 @@ export async function getDisplayContent(
 
   const assetsById = new Map(((assetRows ?? []) as AssetRow[]).map((a) => [a.id, a]));
 
-  const items = page.items
-    .map((item) => {
+  const items = await Promise.all(
+    page.items.map(async (item): Promise<DisplayItem | null> => {
       const asset = assetsById.get(item.asset_id);
       if (!asset) return null;
-      return {
+
+      const base: DisplayItem = {
         id: asset.id,
         kind: asset.kind,
         url: asset.url,
         label: asset.label,
         duration_seconds: item.duration_seconds,
       };
+
+      // The calendar feed is fetched (and cached) here, server-side, so
+      // the kiosk itself never talks to Google directly -- it just gets
+      // a plain list of events back like any other item's data.
+      if (asset.kind === "calendar_agenda") {
+        base.calendarEvents = await getUpcomingEvents(asset.url, 30);
+      }
+
+      return base;
     })
-    .filter((x): x is DisplayContent["items"][number] => !!x);
+  );
 
   return {
     screenName: row.name,
     brandingGroup: row.branding_group,
     pageName: page.name,
-    items,
+    items: items.filter((x): x is DisplayItem => !!x),
     updatedAt: page.updated_at,
     emergencyMessage: null,
   };

@@ -12,7 +12,7 @@ import {
 import { SignagePreview } from "@/components/SignagePreview";
 import type { Asset, PageItem } from "@/lib/signage-types";
 
-const KIND_ICON: Record<string, string> = { image: "🖼", video: "🎬", embed: "🌐" };
+const KIND_ICON: Record<string, string> = { image: "🖼", video: "🎬", embed: "🌐", calendar_agenda: "📅" };
 
 export default async function PageBuilderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,17 +21,25 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
 
   const supabase = await createClient();
 
-  const [{ data: page }, { data: assetRows }, { data: screenRows }] = await Promise.all([
-    supabase.from("pages").select("id, name, items").eq("id", id).eq("owner_id", user.id).maybeSingle(),
+  const { data: page } = await supabase
+    .from("pages")
+    .select("id, name, items, org")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!page) notFound();
+
+  const [{ data: assetRows }, { data: screenRows }] = await Promise.all([
+    // The asset library is scoped to this page's org, not to "my own
+    // assets" -- a page is shared within its org, so everything filed
+    // under that org is fair game to add to it.
     supabase
       .from("assets")
-      .select("id, kind, url, label")
-      .eq("owner_id", user.id)
+      .select("id, kind, url, label, org, folder_id")
+      .eq("org", page.org)
       .order("created_at", { ascending: false }),
     supabase.from("user_screen_access").select("screen:screens(id, name)").eq("user_id", user.id),
   ]);
-
-  if (!page) notFound();
 
   const assets = (assetRows ?? []) as Asset[];
   const assetsById = new Map(assets.map((a) => [a.id, a]));

@@ -5,14 +5,12 @@ import { getCurrentUser } from "@/lib/current-user";
 import { revalidatePath } from "next/cache";
 import type { PageItem } from "@/lib/signage-types";
 
-async function loadOwnedPage(pageId: string, userId: string) {
+// No owner_id filter on any of these -- pages are shared within an org
+// now, so RLS (has_org_access) is what decides whether this user may
+// touch a given page, not whether they happen to be the one who made it.
+async function loadPage(pageId: string) {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("pages")
-    .select("id, items")
-    .eq("id", pageId)
-    .eq("owner_id", userId)
-    .maybeSingle();
+  const { data } = await supabase.from("pages").select("id, items").eq("id", pageId).maybeSingle();
   return { supabase, page: data as { id: string; items: PageItem[] } | null };
 }
 
@@ -25,7 +23,7 @@ export async function renamePage(formData: FormData) {
   if (!pageId || !name) return;
 
   const supabase = await createClient();
-  await supabase.from("pages").update({ name }).eq("id", pageId).eq("owner_id", user.id);
+  await supabase.from("pages").update({ name }).eq("id", pageId);
 
   revalidatePath(`/my/pages/${pageId}`);
   revalidatePath("/my/pages");
@@ -40,16 +38,12 @@ export async function addItemToPage(formData: FormData) {
   const durationSeconds = Number(formData.get("duration_seconds") ?? 10);
   if (!pageId || !assetId) return;
 
-  const { supabase, page } = await loadOwnedPage(pageId, user.id);
+  const { supabase, page } = await loadPage(pageId);
   if (!page) return;
 
   const items = [...(page.items ?? []), { asset_id: assetId, duration_seconds: Math.max(1, durationSeconds) }];
 
-  await supabase
-    .from("pages")
-    .update({ items, updated_at: new Date().toISOString() })
-    .eq("id", pageId)
-    .eq("owner_id", user.id);
+  await supabase.from("pages").update({ items, updated_at: new Date().toISOString() }).eq("id", pageId);
 
   revalidatePath(`/my/pages/${pageId}`);
 }
@@ -62,16 +56,12 @@ export async function removeItemFromPage(formData: FormData) {
   const index = Number(formData.get("index") ?? -1);
   if (!pageId || index < 0) return;
 
-  const { supabase, page } = await loadOwnedPage(pageId, user.id);
+  const { supabase, page } = await loadPage(pageId);
   if (!page) return;
 
   const items = (page.items ?? []).filter((_, i) => i !== index);
 
-  await supabase
-    .from("pages")
-    .update({ items, updated_at: new Date().toISOString() })
-    .eq("id", pageId)
-    .eq("owner_id", user.id);
+  await supabase.from("pages").update({ items, updated_at: new Date().toISOString() }).eq("id", pageId);
 
   revalidatePath(`/my/pages/${pageId}`);
 }
@@ -85,7 +75,7 @@ export async function moveItem(formData: FormData) {
   const direction = String(formData.get("direction") ?? "");
   if (!pageId || index < 0) return;
 
-  const { supabase, page } = await loadOwnedPage(pageId, user.id);
+  const { supabase, page } = await loadPage(pageId);
   if (!page) return;
 
   const items = [...(page.items ?? [])];
@@ -94,11 +84,7 @@ export async function moveItem(formData: FormData) {
 
   [items[index], items[target]] = [items[target], items[index]];
 
-  await supabase
-    .from("pages")
-    .update({ items, updated_at: new Date().toISOString() })
-    .eq("id", pageId)
-    .eq("owner_id", user.id);
+  await supabase.from("pages").update({ items, updated_at: new Date().toISOString() }).eq("id", pageId);
 
   revalidatePath(`/my/pages/${pageId}`);
 }
@@ -113,10 +99,12 @@ export async function pushPageToScreen(formData: FormData) {
 
   const supabase = await createClient();
 
-  // Confirm the page belongs to this user and the screen is one they're
-  // allowed to push to, before touching screen_assignments.
+  // Confirm this user can see the page (RLS: has org access to it) and
+  // is allowed to push to this screen, before touching screen_assignments.
+  // The screen_assignments RLS policy re-checks the org access itself --
+  // this is belt-and-suspenders, not the only thing standing in the way.
   const [{ data: page }, { data: access }] = await Promise.all([
-    supabase.from("pages").select("id").eq("id", pageId).eq("owner_id", user.id).maybeSingle(),
+    supabase.from("pages").select("id").eq("id", pageId).maybeSingle(),
     supabase
       .from("user_screen_access")
       .select("screen_id")

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { DisplayContent } from "@/lib/signage-types";
 import { brandingFor } from "@/lib/branding";
+import { CalendarAgenda } from "@/components/CalendarAgenda";
 
 // How often the display polls for new content. Every poll doubles as a
 // heartbeat, so this also bounds how quickly the admin "online" status
@@ -143,6 +144,14 @@ export function DisplayPlayer({
       )}
       {current?.kind === "embed" && (
         <iframe src={current.url} title={current.label ?? ""} className="h-full w-full border-0" />
+      )}
+      {current?.kind === "calendar_agenda" && (
+        <CalendarAgenda
+          events={current.calendarEvents ?? []}
+          durationSeconds={current.duration_seconds}
+          accentColor={brand.accent}
+          accentTextColor={brand.background}
+        />
       )}
       {debug && (
         <div className="absolute bottom-2 right-2 rounded bg-black/70 px-2 py-1 font-mono text-[10px] text-green-400">

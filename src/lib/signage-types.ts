@@ -1,8 +1,16 @@
-export type AssetKind = "image" | "video" | "embed";
+export type AssetKind = "image" | "video" | "embed" | "calendar_agenda";
 
 // Top-level org a piece of content is filed under -- drives the FFA /
-// District folder split in My Assets, My Pages, and Screens.
+// District folder split and shared visibility in My Assets, My Pages,
+// and Screens.
 export type Org = "ffa" | "district";
+
+export type Folder = {
+  id: string;
+  org: Org;
+  parent_id: string | null;
+  name: string;
+};
 
 export type Asset = {
   id: string;
@@ -10,11 +18,22 @@ export type Asset = {
   url: string;
   label: string | null;
   org: Org;
+  folder_id: string | null;
 };
 
 export type PageItem = {
   asset_id: string;
   duration_seconds: number;
+};
+
+// One upcoming event pulled from a public Google Calendar feed, trimmed
+// to what the display actually needs to show.
+export type CalendarEvent = {
+  id: string;
+  title: string;
+  location: string | null;
+  start: string; // ISO timestamp (or date-only, YYYY-MM-DD, for all-day events)
+  allDay: boolean;
 };
 
 export type DisplayItem = {
@@ -23,6 +42,9 @@ export type DisplayItem = {
   url: string;
   label: string | null;
   duration_seconds: number;
+  // Only present for kind "calendar_agenda" -- fetched and resolved
+  // server-side so the kiosk never talks to Google directly.
+  calendarEvents?: CalendarEvent[];
 };
 
 export type DisplayContent = {
