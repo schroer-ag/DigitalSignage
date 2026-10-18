@@ -46,14 +46,14 @@ export default async function BroadcastPage() {
       </p>
 
       {active ? (
-        <div className="mt-6 rounded-lg border-2 border-red-600 bg-red-50 p-5">
-          <div className="text-sm font-semibold uppercase tracking-wide text-red-700">
+        <div className="mt-6 rounded-lg border-2 border-red-600 bg-red-500/10 p-5">
+          <div className="text-sm font-semibold uppercase tracking-wide text-red-300">
             Broadcast is live
           </div>
-          <div className="mt-2 whitespace-pre-wrap text-base font-medium text-red-900">
+          <div className="mt-2 whitespace-pre-wrap text-base font-medium text-red-100">
             {broadcast?.message}
           </div>
-          <div className="mt-3 text-xs text-red-600">
+          <div className="mt-3 text-xs text-red-400">
             Activated{activatedByName ? ` by ${activatedByName}` : ""}
             {broadcast?.activated_at
               ? ` at ${new Date(broadcast.activated_at).toLocaleString()}`
@@ -71,7 +71,7 @@ export default async function BroadcastPage() {
       ) : (
         <form
           action={activateBroadcast}
-          className="mt-6 flex flex-col gap-3 rounded-lg border border-gray-200 p-5"
+          className="mt-6 flex flex-col gap-3 rounded-lg border border-gray-800 p-5"
         >
           <label className="text-xs font-medium text-gray-500">
             Message to show on every screen
@@ -80,7 +80,7 @@ export default async function BroadcastPage() {
             name="message"
             required
             rows={4}
-            className="rounded border border-gray-200 px-2 py-1.5 text-sm"
+            className="rounded border border-gray-800 px-2 py-1.5 text-sm"
             placeholder="e.g. School closed Friday due to weather. Check email for updates."
           />
           <div>

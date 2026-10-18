@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createPage, deletePage, movePage } from "./actions";
 import { createFolder, deleteFolder } from "@/app/my/folders/actions";
 import { FolderTree } from "@/components/FolderTree";
+import { brandingFor } from "@/lib/branding";
 import type { Folder, Org, PageItem } from "@/lib/signage-types";
 
 type PageRow = { id: string; name: string; items: PageItem[]; updated_at: string; folder_id: string | null };
@@ -37,7 +38,7 @@ export default async function MyPagesPage({
     return (
       <div>
         <h1 className="text-lg font-semibold">My Pages</h1>
-        <p className="mt-3 max-w-md rounded-md bg-amber-50 p-4 text-sm text-amber-800">
+        <p className="mt-3 max-w-md rounded-md bg-amber-500/10 p-4 text-sm text-amber-300">
           You don&apos;t have access to FFA or District content yet. Ask your super admin to
           grant you access on the Users page.
         </p>
@@ -78,14 +79,13 @@ export default async function MyPagesPage({
         have access to. Anyone with access to {org === "ffa" ? "FFA" : "District"} can edit it.
       </p>
 
-      <div className="mt-4 flex border-b border-gray-200 text-sm font-medium">
+      <div className="mt-4 flex border-b border-gray-800 text-sm font-medium">
         {orgs.map((o) => (
           <a
             key={o}
             href={`/my/pages?org=${o}`}
-            className={`px-4 py-2 ${
-              o === org ? "border-b-2 border-[#004C97] text-[#004C97]" : "text-gray-400 hover:text-gray-600"
-            }`}
+            className={`px-4 py-2 ${o === org ? "border-b-2 font-medium" : "text-gray-400 hover:text-gray-200"}`}
+            style={o === org ? { borderColor: brandingFor(o).accent, color: brandingFor(o).accent } : undefined}
           >
             {o === "ffa" ? "FFA" : "District"}
           </a>
@@ -93,11 +93,11 @@ export default async function MyPagesPage({
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-5 lg:grid-cols-[240px_1fr]">
-        <div className="rounded-lg border border-gray-200">
+        <div className="rounded-lg border border-gray-800">
           <div className="p-2">
             <FolderTree folders={folders} org={org} selectedFolderId={selectedFolderId} basePath="/my/pages" />
           </div>
-          <form action={createFolder} className="border-t border-gray-200 p-2">
+          <form action={createFolder} className="border-t border-gray-800 p-2">
             <input type="hidden" name="org" value={org} />
             <input type="hidden" name="parent_id" value={selectedFolderId ?? ""} />
             <div className="flex gap-1">
@@ -105,18 +105,18 @@ export default async function MyPagesPage({
                 name="name"
                 required
                 placeholder="New folder"
-                className="w-full rounded border border-gray-200 px-2 py-1 text-xs"
+                className="w-full rounded border border-gray-800 px-2 py-1 text-xs"
               />
-              <button className="shrink-0 rounded border border-gray-300 px-2 text-xs font-medium hover:bg-gray-50">
+              <button className="shrink-0 rounded border border-gray-700 px-2 text-xs font-medium hover:bg-gray-800">
                 +
               </button>
             </div>
           </form>
           {selectedFolderId && (
-            <form action={deleteFolder} className="border-t border-gray-200 p-2">
+            <form action={deleteFolder} className="border-t border-gray-800 p-2">
               <input type="hidden" name="org" value={org} />
               <input type="hidden" name="folder_id" value={selectedFolderId} />
-              <button className="w-full rounded border border-red-200 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50">
+              <button className="w-full rounded border border-red-900 px-2 py-1 text-xs font-medium text-red-400 hover:bg-red-900/20">
                 Delete this folder
               </button>
               <p className="mt-1 text-[10px] text-gray-400">Only works if it&apos;s empty.</p>
@@ -131,7 +131,7 @@ export default async function MyPagesPage({
 
           <form
             action={createPage}
-            className="mt-3 flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 p-4"
+            className="mt-3 flex flex-wrap items-end gap-3 rounded-lg border border-gray-800 p-4"
           >
             <input type="hidden" name="org" value={org} />
             <input type="hidden" name="folder_id" value={selectedFolderId ?? ""} />
@@ -140,7 +140,7 @@ export default async function MyPagesPage({
               <input
                 name="name"
                 required
-                className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                className="w-full rounded border border-gray-800 px-2 py-1 text-sm"
                 placeholder="Fall Open House Loop"
               />
             </div>
@@ -149,9 +149,9 @@ export default async function MyPagesPage({
             </button>
           </form>
 
-          <div className="mt-4 overflow-x-auto rounded-lg border border-gray-200">
+          <div className="mt-4 overflow-x-auto rounded-lg border border-gray-800">
             <table className="w-full text-sm">
-              <thead className="border-b border-gray-200 text-left text-xs uppercase text-gray-400">
+              <thead className="border-b border-gray-800 text-left text-xs uppercase text-gray-400">
                 <tr>
                   <th className="px-4 py-2">Page</th>
                   <th className="px-4 py-2">Items</th>
@@ -166,7 +166,7 @@ export default async function MyPagesPage({
                   return (
                     <tr key={page.id} className="border-b border-gray-100 last:border-0">
                       <td className="px-4 py-3">
-                        <Link href={`/my/pages/${page.id}`} className="font-medium text-teal-700 hover:underline">
+                        <Link href={`/my/pages/${page.id}`} className="font-medium text-teal-400 hover:underline">
                           {page.name}
                         </Link>
                       </td>
@@ -176,7 +176,7 @@ export default async function MyPagesPage({
                         <div className="flex items-center justify-end gap-2">
                           <form action={movePage} className="flex items-center gap-1">
                             <input type="hidden" name="page_id" value={page.id} />
-                            <select name="folder_id" defaultValue={selectedFolderId ?? ""} className="rounded border border-gray-200 text-xs">
+                            <select name="folder_id" defaultValue={selectedFolderId ?? ""} className="rounded border border-gray-800 text-xs">
                               <option value="">Root</option>
                               {folders.map((f) => (
                                 <option key={f.id} value={f.id}>
@@ -184,13 +184,13 @@ export default async function MyPagesPage({
                                 </option>
                               ))}
                             </select>
-                            <button className="rounded border border-gray-300 px-2 py-0.5 text-xs font-medium hover:bg-gray-50">
+                            <button className="rounded border border-gray-700 px-2 py-0.5 text-xs font-medium hover:bg-gray-800">
                               Move
                             </button>
                           </form>
                           <form action={deletePage}>
                             <input type="hidden" name="page_id" value={page.id} />
-                            <button className="text-xs font-medium text-red-600 hover:underline">Delete</button>
+                            <button className="text-xs font-medium text-red-400 hover:underline">Delete</button>
                           </form>
                         </div>
                       </td>

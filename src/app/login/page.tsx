@@ -20,7 +20,7 @@ export default function LoginPage() {
         </p>
         <button
           onClick={signIn}
-          className="mt-6 w-full rounded-md border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50"
+          className="mt-6 w-full rounded-md border border-gray-700 px-4 py-2 text-sm font-medium hover:bg-gray-800"
         >
           Sign in with Google
         </button>

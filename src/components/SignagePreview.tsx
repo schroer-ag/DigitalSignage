@@ -27,7 +27,7 @@ export function SignagePreview({ items }: { items: PreviewItem[] }) {
 
   if (!current) {
     return (
-      <div className="flex aspect-video items-center justify-center rounded-md bg-gray-50 text-xs text-gray-400">
+      <div className="flex aspect-video items-center justify-center rounded-md bg-gray-800 text-xs text-gray-400">
         Add items to preview the loop
       </div>
     );

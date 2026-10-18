@@ -67,15 +67,15 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
             <input
               name="name"
               defaultValue={page.name}
-              className="rounded border border-transparent px-1 py-0.5 text-lg font-semibold hover:border-gray-200 focus:border-gray-300"
+              className="rounded border border-transparent px-1 py-0.5 text-lg font-semibold hover:border-gray-800 focus:border-gray-700"
             />
-            <button className="text-xs font-medium text-gray-400 hover:text-teal-700">Save name</button>
+            <button className="text-xs font-medium text-gray-400 hover:text-teal-400">Save name</button>
           </form>
         </div>
 
         <form action={pushPageToScreen} className="flex items-end gap-2">
           <input type="hidden" name="page_id" value={page.id} />
-          <select name="screen_id" required className="rounded border border-gray-200 px-2 py-1.5 text-sm">
+          <select name="screen_id" required className="rounded border border-gray-800 px-2 py-1.5 text-sm">
             <option value="">Push to screen…</option>
             {screens.map((screen) => (
               <option key={screen.id} value={screen.id}>
@@ -95,13 +95,13 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
       )}
 
       <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[260px_1fr_280px]">
-        <div className="rounded-lg border border-gray-200">
-          <div className="border-b border-gray-200 px-4 py-3 text-xs font-semibold uppercase text-gray-400">
+        <div className="rounded-lg border border-gray-800">
+          <div className="border-b border-gray-800 px-4 py-3 text-xs font-semibold uppercase text-gray-400">
             Asset library
           </div>
           <form action={addItemToPage} className="flex flex-col gap-2 p-3">
             <input type="hidden" name="page_id" value={page.id} />
-            <select name="asset_id" required className="rounded border border-gray-200 px-2 py-1 text-sm">
+            <select name="asset_id" required className="rounded border border-gray-800 px-2 py-1 text-sm">
               <option value="">Choose an asset…</option>
               {assets.map((asset) => (
                 <option key={asset.id} value={asset.id}>
@@ -115,18 +115,18 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
                 name="duration_seconds"
                 defaultValue={10}
                 min={1}
-                className="w-20 rounded border border-gray-200 px-2 py-1 text-sm"
+                className="w-20 rounded border border-gray-800 px-2 py-1 text-sm"
               />
               <span className="text-xs text-gray-400">seconds</span>
             </div>
-            <button className="rounded border border-gray-300 px-2 py-1 text-xs font-medium hover:bg-gray-50">
+            <button className="rounded border border-gray-700 px-2 py-1 text-xs font-medium hover:bg-gray-800">
               Add to page
             </button>
           </form>
           {assets.length === 0 && (
             <p className="px-3 pb-3 text-xs text-gray-400">
               No assets yet — add some from{" "}
-              <Link href="/my/assets" className="text-teal-700 hover:underline">
+              <Link href="/my/assets" className="text-teal-400 hover:underline">
                 My Assets
               </Link>
               .
@@ -134,8 +134,8 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
           )}
         </div>
 
-        <div className="rounded-lg border border-gray-200">
-          <div className="border-b border-gray-200 px-4 py-3 text-xs font-semibold uppercase text-gray-400">
+        <div className="rounded-lg border border-gray-800">
+          <div className="border-b border-gray-800 px-4 py-3 text-xs font-semibold uppercase text-gray-400">
             Timeline
           </div>
           {items.length === 0 && (
@@ -151,7 +151,7 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
                   key={`${item.asset_id}-${index}`}
                   className="flex items-center gap-3 border-b border-gray-100 px-4 py-2 last:border-0"
                 >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-teal-50 text-base">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-teal-500/10 text-base">
                     {asset ? KIND_ICON[asset.kind] : "⚠"}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -164,7 +164,7 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
                     <input type="hidden" name="page_id" value={page.id} />
                     <input type="hidden" name="index" value={index} />
                     <input type="hidden" name="direction" value="up" />
-                    <button disabled={index === 0} className="px-1 text-gray-400 hover:text-teal-700 disabled:opacity-30">
+                    <button disabled={index === 0} className="px-1 text-gray-400 hover:text-teal-400 disabled:opacity-30">
                       ↑
                     </button>
                   </form>
@@ -174,7 +174,7 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
                     <input type="hidden" name="direction" value="down" />
                     <button
                       disabled={index === items.length - 1}
-                      className="px-1 text-gray-400 hover:text-teal-700 disabled:opacity-30"
+                      className="px-1 text-gray-400 hover:text-teal-400 disabled:opacity-30"
                     >
                       ↓
                     </button>
@@ -182,7 +182,7 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
                   <form action={removeItemFromPage}>
                     <input type="hidden" name="page_id" value={page.id} />
                     <input type="hidden" name="index" value={index} />
-                    <button className="px-1 text-xs font-medium text-red-600 hover:underline">Remove</button>
+                    <button className="px-1 text-xs font-medium text-red-400 hover:underline">Remove</button>
                   </form>
                 </div>
               );
@@ -190,8 +190,8 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
           </div>
         </div>
 
-        <div className="rounded-lg border border-gray-200">
-          <div className="border-b border-gray-200 px-4 py-3 text-xs font-semibold uppercase text-gray-400">
+        <div className="rounded-lg border border-gray-800">
+          <div className="border-b border-gray-800 px-4 py-3 text-xs font-semibold uppercase text-gray-400">
             Live preview
           </div>
           <div className="p-3">

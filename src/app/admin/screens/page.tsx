@@ -68,9 +68,9 @@ export default async function ScreensPage() {
         </div>
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-gray-200">
+      <div className="mt-6 overflow-x-auto rounded-lg border border-gray-800">
         <table className="w-full text-sm">
-          <thead className="border-b border-gray-200 text-left text-xs uppercase text-gray-400">
+          <thead className="border-b border-gray-800 text-left text-xs uppercase text-gray-400">
             <tr>
               <th className="px-4 py-2">Screen</th>
               <th className="px-4 py-2">Branding</th>
@@ -95,7 +95,7 @@ export default async function ScreensPage() {
                     <BrandingBadge group={screen.branding_group} />
                   </td>
                   <td className="px-4 py-3">
-                    <span className={online ? "text-green-700" : "text-red-700"}>
+                    <span className={online ? "text-green-400" : "text-red-300"}>
                       {online ? "Online" : "Offline"}
                     </span>
                     <div className="text-xs text-gray-400">
@@ -112,7 +112,7 @@ export default async function ScreensPage() {
                   <td className="px-4 py-3">
                     <form action={assignUserToScreen} className="flex gap-2">
                       <input type="hidden" name="screen_id" value={screen.id} />
-                      <select name="user_id" className="rounded border border-gray-200 text-xs" required>
+                      <select name="user_id" className="rounded border border-gray-800 text-xs" required>
                         <option value="">Choose a user…</option>
                         {users.map((u) => (
                           <option key={u.id} value={u.id}>
@@ -120,7 +120,7 @@ export default async function ScreensPage() {
                           </option>
                         ))}
                       </select>
-                      <button className="rounded border border-gray-300 px-2 text-xs font-medium hover:bg-gray-50">
+                      <button className="rounded border border-gray-700 px-2 text-xs font-medium hover:bg-gray-800">
                         Assign
                       </button>
                     </form>
@@ -132,18 +132,18 @@ export default async function ScreensPage() {
         </table>
       </div>
 
-      <form action={registerScreen} className="mt-6 flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 p-4">
+      <form action={registerScreen} className="mt-6 flex flex-wrap items-end gap-3 rounded-lg border border-gray-800 p-4">
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-gray-500">Name</label>
-          <input name="name" required className="rounded border border-gray-200 px-2 py-1 text-sm" />
+          <input name="name" required className="rounded border border-gray-800 px-2 py-1 text-sm" />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-gray-500">Building</label>
-          <input name="building" className="rounded border border-gray-200 px-2 py-1 text-sm" />
+          <input name="building" className="rounded border border-gray-800 px-2 py-1 text-sm" />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-gray-500">Branding</label>
-          <select name="branding_group" className="rounded border border-gray-200 px-2 py-1 text-sm" defaultValue="district">
+          <select name="branding_group" className="rounded border border-gray-800 px-2 py-1 text-sm" defaultValue="district">
             <option value="ffa">FFA</option>
             <option value="district">District</option>
           </select>

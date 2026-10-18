@@ -24,7 +24,7 @@ export function CopyLinkButton({ screenId }: { screenId: string }) {
     <button
       type="button"
       onClick={handleClick}
-      className="rounded border border-gray-300 px-2 py-0.5 text-xs font-medium hover:bg-gray-50"
+      className="rounded border border-gray-700 px-2 py-0.5 text-xs font-medium hover:bg-gray-800"
     >
       {copied ? "Copied!" : "Copy link"}
     </button>

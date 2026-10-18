@@ -13,7 +13,7 @@ export function MyNav({ displayName, isSuperAdmin }: { displayName: string; isSu
   const pathname = usePathname();
 
   return (
-    <aside className="w-52 shrink-0 border-r border-gray-200 p-4">
+    <aside className="w-52 shrink-0 border-r border-gray-800 p-4">
       <div className="text-sm font-semibold">Digital Signage</div>
       <div className="text-xs uppercase tracking-wide text-gray-400">My Workspace</div>
       <nav className="mt-6 flex flex-col gap-1">
@@ -24,7 +24,7 @@ export function MyNav({ displayName, isSuperAdmin }: { displayName: string; isSu
               key={link.href}
               href={link.href}
               className={`rounded-md px-3 py-2 text-sm font-medium ${
-                active ? "bg-teal-50 text-teal-700" : "text-gray-500 hover:bg-gray-100"
+                active ? "bg-teal-500/10 text-teal-400" : "text-gray-500 hover:bg-gray-800"
               }`}
             >
               {link.label}
@@ -34,7 +34,7 @@ export function MyNav({ displayName, isSuperAdmin }: { displayName: string; isSu
         {isSuperAdmin && (
           <Link
             href="/admin/screens"
-            className="mt-4 rounded-md px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-100"
+            className="mt-4 rounded-md px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-800"
           >
             ← Admin console
           </Link>
@@ -42,9 +42,9 @@ export function MyNav({ displayName, isSuperAdmin }: { displayName: string; isSu
       </nav>
       <div className="mt-auto pt-6 text-xs text-gray-400">
         Signed in as
-        <div className="font-medium text-gray-700">{displayName}</div>
+        <div className="font-medium text-gray-300">{displayName}</div>
         <form action={signOut} className="mt-2">
-          <button className="text-xs font-medium text-gray-400 hover:text-red-600 hover:underline">
+          <button className="text-xs font-medium text-gray-400 hover:text-red-400 hover:underline">
             Sign out
           </button>
         </form>

@@ -26,7 +26,7 @@ export default async function UsersPage() {
     <div>
       <h1 className="text-lg font-semibold">Users</h1>
       <p className="text-sm text-gray-500">Who can sign in, and what they&apos;re allowed to touch.</p>
-      <p className="mt-2 max-w-xl rounded-md bg-amber-50 p-3 text-xs text-amber-800">
+      <p className="mt-2 max-w-xl rounded-md bg-amber-500/10 p-3 text-xs text-amber-300">
         People show up here automatically the first time they sign in with an allowed school
         account — there&apos;s no &quot;add a user&quot; step. Use the dropdown below to set
         someone&apos;s role, and the checkboxes to control which org&apos;s content (FFA,
@@ -34,9 +34,9 @@ export default async function UsersPage() {
         has both, regardless of these checkboxes.
       </p>
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-gray-200">
+      <div className="mt-6 overflow-x-auto rounded-lg border border-gray-800">
         <table className="w-full text-sm">
-          <thead className="border-b border-gray-200 text-left text-xs uppercase text-gray-400">
+          <thead className="border-b border-gray-800 text-left text-xs uppercase text-gray-400">
             <tr>
               <th className="px-4 py-2">User</th>
               <th className="px-4 py-2">Role</th>
@@ -59,12 +59,12 @@ export default async function UsersPage() {
                       <select
                         name="role"
                         defaultValue={u.role}
-                        className="rounded border border-gray-200 text-xs"
+                        className="rounded border border-gray-800 text-xs"
                       >
                         <option value="user">User</option>
                         <option value="super_admin">Super admin</option>
                       </select>
-                      <button className="rounded border border-gray-300 px-2 text-xs font-medium hover:bg-gray-50">
+                      <button className="rounded border border-gray-700 px-2 text-xs font-medium hover:bg-gray-800">
                         Save
                       </button>
                     </form>
@@ -91,7 +91,7 @@ export default async function UsersPage() {
                           />
                           District
                         </label>
-                        <button className="rounded border border-gray-300 px-2 py-0.5 text-xs font-medium hover:bg-gray-50">
+                        <button className="rounded border border-gray-700 px-2 py-0.5 text-xs font-medium hover:bg-gray-800">
                           Save
                         </button>
                       </form>
