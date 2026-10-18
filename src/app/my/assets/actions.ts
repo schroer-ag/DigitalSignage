@@ -9,6 +9,7 @@ export async function createAsset(formData: FormData) {
   if (!user) return;
 
   const kind = String(formData.get("kind") ?? "image");
+  const org = String(formData.get("org") ?? "ffa");
   const url = String(formData.get("url") ?? "").trim();
   const label = String(formData.get("label") ?? "").trim();
 
@@ -18,6 +19,7 @@ export async function createAsset(formData: FormData) {
   await supabase.from("assets").insert({
     owner_id: user.id,
     kind,
+    org,
     url,
     label: label || null,
   });

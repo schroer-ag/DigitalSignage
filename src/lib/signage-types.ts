@@ -1,10 +1,15 @@
 export type AssetKind = "image" | "video" | "embed";
 
+// Top-level org a piece of content is filed under -- drives the FFA /
+// District folder split in My Assets, My Pages, and Screens.
+export type Org = "ffa" | "district";
+
 export type Asset = {
   id: string;
   kind: AssetKind;
   url: string;
   label: string | null;
+  org: Org;
 };
 
 export type PageItem = {
