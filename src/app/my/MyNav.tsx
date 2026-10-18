@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "@/lib/auth-actions";
 
 const LINKS = [
   { href: "/my/pages", label: "My Pages" },
@@ -42,6 +43,11 @@ export function MyNav({ displayName, isSuperAdmin }: { displayName: string; isSu
       <div className="mt-auto pt-6 text-xs text-gray-400">
         Signed in as
         <div className="font-medium text-gray-700">{displayName}</div>
+        <form action={signOut} className="mt-2">
+          <button className="text-xs font-medium text-gray-400 hover:text-red-600 hover:underline">
+            Sign out
+          </button>
+        </form>
       </div>
     </aside>
   );
