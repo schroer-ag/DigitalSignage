@@ -19,6 +19,10 @@ export type Asset = {
   label: string | null;
   org: Org;
   folder_id: string | null;
+  // Only meaningful for kind "calendar_agenda" -- how many days ahead of
+  // today it pulls events for. Unused (but still present, default 30)
+  // on every other kind.
+  days_ahead: number;
 };
 
 export type PageItem = {

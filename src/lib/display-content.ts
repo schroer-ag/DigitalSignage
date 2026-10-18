@@ -15,7 +15,7 @@ type ScreenRow = {
   screen_assignments: { page: PageRow | null } | { page: PageRow | null }[] | null;
 };
 
-type AssetRow = { id: string; kind: AssetKind; url: string; label: string | null };
+type AssetRow = { id: string; kind: AssetKind; url: string; label: string | null; days_ahead: number };
 
 type BroadcastRow = { active: boolean; message: string | null; activated_at: string | null };
 
@@ -84,7 +84,7 @@ export async function getDisplayContent(
 
   const assetIds = page.items.map((item) => item.asset_id);
   const { data: assetRows } = assetIds.length
-    ? await supabase.from("assets").select("id, kind, url, label").in("id", assetIds)
+    ? await supabase.from("assets").select("id, kind, url, label, days_ahead").in("id", assetIds)
     : { data: [] as AssetRow[] };
 
   const assetsById = new Map(((assetRows ?? []) as AssetRow[]).map((a) => [a.id, a]));
@@ -106,7 +106,7 @@ export async function getDisplayContent(
       // the kiosk itself never talks to Google directly -- it just gets
       // a plain list of events back like any other item's data.
       if (asset.kind === "calendar_agenda") {
-        base.calendarEvents = await getUpcomingEvents(asset.url, 30);
+        base.calendarEvents = await getUpcomingEvents(asset.url, asset.days_ahead);
       }
 
       return base;

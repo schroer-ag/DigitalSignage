@@ -61,13 +61,13 @@ export default async function MyAssetsPage({
     selectedFolderId
       ? supabase
           .from("assets")
-          .select("id, kind, url, label, org, folder_id, owner:users(display_name, email)")
+          .select("id, kind, url, label, org, folder_id, days_ahead, owner:users(display_name, email)")
           .eq("org", org)
           .eq("folder_id", selectedFolderId)
           .order("created_at", { ascending: false })
       : supabase
           .from("assets")
-          .select("id, kind, url, label, org, folder_id, owner:users(display_name, email)")
+          .select("id, kind, url, label, org, folder_id, days_ahead, owner:users(display_name, email)")
           .eq("org", org)
           .is("folder_id", null)
           .order("created_at", { ascending: false }),
@@ -169,6 +169,17 @@ export default async function MyAssetsPage({
                 placeholder="https://... or name@group.calendar.google.com"
               />
             </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-gray-500">Days ahead (Calendar Agenda only)</label>
+              <input
+                type="number"
+                name="days_ahead"
+                min={1}
+                max={90}
+                defaultValue={30}
+                className="w-24 rounded border border-gray-200 px-2 py-1 text-sm"
+              />
+            </div>
             <button className="rounded bg-teal-700 px-3 py-1.5 text-sm font-medium text-white hover:opacity-90">
               Add asset
             </button>
@@ -216,6 +227,17 @@ export default async function MyAssetsPage({
                             <div className="flex flex-1 min-w-[220px] flex-col gap-1">
                               <label className="text-xs font-medium text-gray-500">Link</label>
                               <input name="url" required defaultValue={asset.url} className="w-full rounded border border-gray-200 px-2 py-1 text-sm" />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="text-xs font-medium text-gray-500">Days ahead</label>
+                              <input
+                                type="number"
+                                name="days_ahead"
+                                min={1}
+                                max={90}
+                                defaultValue={asset.days_ahead}
+                                className="w-24 rounded border border-gray-200 px-2 py-1 text-sm"
+                              />
                             </div>
                             <button className="rounded bg-teal-700 px-3 py-1.5 text-sm font-medium text-white hover:opacity-90">
                               Save

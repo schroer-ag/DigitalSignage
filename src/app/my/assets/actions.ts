@@ -5,6 +5,14 @@ import { getCurrentUser } from "@/lib/current-user";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+// Clamp to the same 1-90 range the database check constraint enforces,
+// so a bad value fails obviously here rather than as a cryptic DB error.
+function clampDaysAhead(raw: FormDataEntryValue | null): number {
+  const n = Number(raw ?? 30);
+  if (!Number.isFinite(n)) return 30;
+  return Math.min(90, Math.max(1, Math.round(n)));
+}
+
 export async function createAsset(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) return;
@@ -14,6 +22,7 @@ export async function createAsset(formData: FormData) {
   const folderId = String(formData.get("folder_id") ?? "").trim() || null;
   const url = String(formData.get("url") ?? "").trim();
   const label = String(formData.get("label") ?? "").trim();
+  const daysAhead = clampDaysAhead(formData.get("days_ahead"));
 
   if (!url) return;
 
@@ -28,6 +37,7 @@ export async function createAsset(formData: FormData) {
     folder_id: folderId,
     url,
     label: label || null,
+    days_ahead: daysAhead,
   });
 
   // A failed insert (RLS denial, a bad constraint, anything) used to just
@@ -52,12 +62,13 @@ export async function updateAsset(formData: FormData) {
   const label = String(formData.get("label") ?? "").trim();
   const org = String(formData.get("org") ?? "");
   const folderId = String(formData.get("folder_id") ?? "").trim() || null;
+  const daysAhead = clampDaysAhead(formData.get("days_ahead"));
   if (!assetId || !url) return;
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("assets")
-    .update({ kind, url, label: label || null })
+    .update({ kind, url, label: label || null, days_ahead: daysAhead })
     .eq("id", assetId);
 
   if (error) {
