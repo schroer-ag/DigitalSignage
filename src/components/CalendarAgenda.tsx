@@ -37,23 +37,24 @@ function groupByDay(events: CalendarEvent[]): { key: string; heading: string; ev
   return groups;
 }
 
-// Full-screen, wide-format agenda list. Fills the whole kiosk frame
-// (no centered card -- this is meant to be the entire slide) and, when
-// there's more content than fits, scrolls smoothly through everything
-// during the item's on-screen duration: a short pause at the top, a
-// slow scroll through the middle, then a pause at the bottom, so
-// whoever's watching sees the first and last events too, not just
-// whatever didn't get cut off.
+// Pixels per second while actively scrolling -- a fixed reading pace so a
+// short list and a long list both feel the same speed, rather than one
+// racing by and the other crawling.
+const SCROLL_PX_PER_SEC = 55;
+const HOLD_MS = 3000; // pause at the top (and again at the bottom) each pass
+
+// Full-screen, wide-format agenda list. Loops continuously for as long as
+// this item is on screen -- pause at the top, scroll through everything,
+// pause at the bottom, then jump back to the top and do it again -- so it
+// isn't tied to the item's own on-screen duration, and nothing ever gets
+// permanently cut off just because this slide happened to be showing a
+// different scroll position when it advanced away and back.
 export function CalendarAgenda({
   events,
-  durationSeconds,
   accentColor,
-  accentTextColor,
 }: {
   events: CalendarEvent[];
-  durationSeconds: number;
   accentColor: string;
-  accentTextColor: string;
 }) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -70,47 +71,38 @@ export function CalendarAgenda({
       return;
     }
 
-    const totalMs = Math.max(1, durationSeconds) * 1000;
-    const holdMs = Math.min(4000, totalMs * 0.2);
-    const scrollMs = Math.max(1000, totalMs - holdMs * 2);
+    const scrollMs = Math.max(1000, (overflow / SCROLL_PX_PER_SEC) * 1000);
+    const cycleMs = HOLD_MS + scrollMs + HOLD_MS;
 
     let raf = 0;
     let start: number | null = null;
 
     function step(ts: number) {
       if (start === null) start = ts;
-      const elapsed = ts - start;
+      const elapsed = (ts - start) % cycleMs;
 
-      if (elapsed < holdMs) {
+      if (elapsed < HOLD_MS) {
         setOffset(0);
-      } else if (elapsed < holdMs + scrollMs) {
-        const progress = (elapsed - holdMs) / scrollMs;
+      } else if (elapsed < HOLD_MS + scrollMs) {
+        const progress = (elapsed - HOLD_MS) / scrollMs;
         setOffset(-overflow * progress);
       } else {
         setOffset(-overflow);
       }
 
-      if (elapsed < holdMs + scrollMs + holdMs) {
-        raf = requestAnimationFrame(step);
-      }
+      raf = requestAnimationFrame(step);
     }
 
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [events, durationSeconds]);
+  }, [events]);
 
   const groups = groupByDay(events);
 
   return (
     <div className="flex h-full w-full flex-col px-20 py-14 text-white">
-      <div className="flex items-center justify-between border-b border-white/15 pb-6">
+      <div className="border-b border-white/15 pb-6">
         <h1 className="text-6xl font-bold">Upcoming Events</h1>
-        <span
-          className="rounded-full px-6 py-2 text-2xl font-semibold"
-          style={{ backgroundColor: accentColor, color: accentTextColor }}
-        >
-          Next 30 days
-        </span>
       </div>
 
       {groups.length === 0 ? (

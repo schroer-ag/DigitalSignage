@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/current-user";
 import { getUserOrgs } from "@/lib/require-role";
 import { redirect } from "next/navigation";
-import { createAsset, deleteAsset, moveAsset } from "./actions";
+import { createAsset, deleteAsset, moveAsset, updateAsset } from "./actions";
 import { createFolder, deleteFolder } from "@/app/my/folders/actions";
 import { FolderTree } from "@/components/FolderTree";
 import type { Asset, Folder, Org } from "@/lib/signage-types";
@@ -31,12 +31,12 @@ type AssetRow = Asset & { owner: { display_name: string | null; email: string } 
 export default async function MyAssetsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ org?: string; folder?: string; error?: string }>;
+  searchParams: Promise<{ org?: string; folder?: string; error?: string; edit?: string }>;
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const { org: orgParam, folder: folderParam, error: errorParam } = await searchParams;
+  const { org: orgParam, folder: folderParam, error: errorParam, edit: editParam } = await searchParams;
   const orgs = await getUserOrgs();
 
   if (orgs.length === 0) {
@@ -191,38 +191,86 @@ export default async function MyAssetsPage({
                 </tr>
               </thead>
               <tbody>
-                {assets.map((asset) => (
-                  <tr key={asset.id} className="border-b border-gray-100 last:border-0">
-                    <td className="px-4 py-3 font-medium">{asset.label ?? "Untitled"}</td>
-                    <td className="px-4 py-3 text-gray-500">{KIND_LABEL[asset.kind] ?? asset.kind}</td>
-                    <td className="px-4 py-3 text-gray-400">
-                      {asset.owner?.display_name ?? asset.owner?.email ?? "—"}
-                    </td>
-                    <td className="max-w-xs truncate px-4 py-3 text-gray-400">{asset.url}</td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <form action={moveAsset} className="flex items-center gap-1">
-                          <input type="hidden" name="asset_id" value={asset.id} />
-                          <select name="folder_id" defaultValue={selectedFolderId ?? ""} className="rounded border border-gray-200 text-xs">
-                            <option value="">Root</option>
-                            {folders.map((f) => (
-                              <option key={f.id} value={f.id}>
-                                {folderPath(folders, f.id)}
-                              </option>
-                            ))}
-                          </select>
-                          <button className="rounded border border-gray-300 px-2 py-0.5 text-xs font-medium hover:bg-gray-50">
-                            Move
-                          </button>
-                        </form>
-                        <form action={deleteAsset}>
-                          <input type="hidden" name="asset_id" value={asset.id} />
-                          <button className="text-xs font-medium text-red-600 hover:underline">Delete</button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {assets.map((asset) => {
+                  if (editParam === asset.id) {
+                    return (
+                      <tr key={asset.id} className="border-b border-gray-100 bg-gray-50 last:border-0">
+                        <td colSpan={5} className="px-4 py-3">
+                          <form action={updateAsset} className="flex flex-wrap items-end gap-3">
+                            <input type="hidden" name="asset_id" value={asset.id} />
+                            <input type="hidden" name="org" value={org} />
+                            <input type="hidden" name="folder_id" value={selectedFolderId ?? ""} />
+                            <div className="flex flex-col gap-1">
+                              <label className="text-xs font-medium text-gray-500">Type</label>
+                              <select name="kind" defaultValue={asset.kind} className="rounded border border-gray-200 px-2 py-1 text-sm">
+                                <option value="image">Image</option>
+                                <option value="video">Video</option>
+                                <option value="embed">Website</option>
+                                <option value="calendar_agenda">Calendar Agenda</option>
+                              </select>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="text-xs font-medium text-gray-500">Label</label>
+                              <input name="label" defaultValue={asset.label ?? ""} className="rounded border border-gray-200 px-2 py-1 text-sm" />
+                            </div>
+                            <div className="flex flex-1 min-w-[220px] flex-col gap-1">
+                              <label className="text-xs font-medium text-gray-500">Link</label>
+                              <input name="url" required defaultValue={asset.url} className="w-full rounded border border-gray-200 px-2 py-1 text-sm" />
+                            </div>
+                            <button className="rounded bg-teal-700 px-3 py-1.5 text-sm font-medium text-white hover:opacity-90">
+                              Save
+                            </button>
+                            <a
+                              href={`/my/assets?org=${org}${selectedFolderId ? `&folder=${selectedFolderId}` : ""}`}
+                              className="rounded border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+                            >
+                              Cancel
+                            </a>
+                          </form>
+                        </td>
+                      </tr>
+                    );
+                  }
+
+                  return (
+                    <tr key={asset.id} className="border-b border-gray-100 last:border-0">
+                      <td className="px-4 py-3 font-medium">{asset.label ?? "Untitled"}</td>
+                      <td className="px-4 py-3 text-gray-500">{KIND_LABEL[asset.kind] ?? asset.kind}</td>
+                      <td className="px-4 py-3 text-gray-400">
+                        {asset.owner?.display_name ?? asset.owner?.email ?? "—"}
+                      </td>
+                      <td className="max-w-xs truncate px-4 py-3 text-gray-400">{asset.url}</td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <a
+                            href={`/my/assets?org=${org}${selectedFolderId ? `&folder=${selectedFolderId}` : ""}&edit=${asset.id}`}
+                            className="text-xs font-medium text-gray-400 hover:text-teal-700 hover:underline"
+                          >
+                            Edit
+                          </a>
+                          <form action={moveAsset} className="flex items-center gap-1">
+                            <input type="hidden" name="asset_id" value={asset.id} />
+                            <select name="folder_id" defaultValue={selectedFolderId ?? ""} className="rounded border border-gray-200 text-xs">
+                              <option value="">Root</option>
+                              {folders.map((f) => (
+                                <option key={f.id} value={f.id}>
+                                  {folderPath(folders, f.id)}
+                                </option>
+                              ))}
+                            </select>
+                            <button className="rounded border border-gray-300 px-2 py-0.5 text-xs font-medium hover:bg-gray-50">
+                              Move
+                            </button>
+                          </form>
+                          <form action={deleteAsset}>
+                            <input type="hidden" name="asset_id" value={asset.id} />
+                            <button className="text-xs font-medium text-red-600 hover:underline">Delete</button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
                 {assets.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-4 py-6 text-center text-gray-400">

@@ -42,6 +42,33 @@ export async function createAsset(formData: FormData) {
   revalidatePath("/my/assets");
 }
 
+export async function updateAsset(formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user) return;
+
+  const assetId = String(formData.get("asset_id") ?? "");
+  const kind = String(formData.get("kind") ?? "image");
+  const url = String(formData.get("url") ?? "").trim();
+  const label = String(formData.get("label") ?? "").trim();
+  const org = String(formData.get("org") ?? "");
+  const folderId = String(formData.get("folder_id") ?? "").trim() || null;
+  if (!assetId || !url) return;
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("assets")
+    .update({ kind, url, label: label || null })
+    .eq("id", assetId);
+
+  if (error) {
+    const params = new URLSearchParams({ org, error: error.message, edit: assetId });
+    if (folderId) params.set("folder", folderId);
+    redirect(`/my/assets?${params.toString()}`);
+  }
+
+  revalidatePath("/my/assets");
+}
+
 export async function deleteAsset(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) return;
