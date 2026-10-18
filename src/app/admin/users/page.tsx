@@ -59,7 +59,7 @@ export default async function UsersPage() {
                       <select
                         name="role"
                         defaultValue={u.role}
-                        className="rounded border border-gray-800 text-xs"
+                        className="rounded border border-gray-800 text-xs bg-[#0f1115] text-gray-200"
                       >
                         <option value="user">User</option>
                         <option value="super_admin">Super admin</option>

@@ -75,7 +75,7 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
 
         <form action={pushPageToScreen} className="flex items-end gap-2">
           <input type="hidden" name="page_id" value={page.id} />
-          <select name="screen_id" required className="rounded border border-gray-800 px-2 py-1.5 text-sm">
+          <select name="screen_id" required className="rounded border border-gray-800 px-2 py-1.5 text-sm bg-[#0f1115] text-gray-200">
             <option value="">Push to screen…</option>
             {screens.map((screen) => (
               <option key={screen.id} value={screen.id}>
@@ -101,7 +101,7 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
           </div>
           <form action={addItemToPage} className="flex flex-col gap-2 p-3">
             <input type="hidden" name="page_id" value={page.id} />
-            <select name="asset_id" required className="rounded border border-gray-800 px-2 py-1 text-sm">
+            <select name="asset_id" required className="rounded border border-gray-800 px-2 py-1 text-sm bg-[#0f1115] text-gray-200">
               <option value="">Choose an asset…</option>
               {assets.map((asset) => (
                 <option key={asset.id} value={asset.id}>

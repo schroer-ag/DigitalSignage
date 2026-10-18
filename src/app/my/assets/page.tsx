@@ -149,7 +149,7 @@ export default async function MyAssetsPage({
             <input type="hidden" name="folder_id" value={selectedFolderId ?? ""} />
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-gray-500">Type</label>
-              <select name="kind" className="rounded border border-gray-800 px-2 py-1 text-sm" defaultValue="image">
+              <select name="kind" className="rounded border border-gray-800 px-2 py-1 text-sm bg-[#0f1115] text-gray-200" defaultValue="image">
                 <option value="image">Image</option>
                 <option value="video">Video</option>
                 <option value="embed">Website</option>
@@ -213,7 +213,7 @@ export default async function MyAssetsPage({
                             <input type="hidden" name="folder_id" value={selectedFolderId ?? ""} />
                             <div className="flex flex-col gap-1">
                               <label className="text-xs font-medium text-gray-500">Type</label>
-                              <select name="kind" defaultValue={asset.kind} className="rounded border border-gray-800 px-2 py-1 text-sm">
+                              <select name="kind" defaultValue={asset.kind} className="rounded border border-gray-800 px-2 py-1 text-sm bg-[#0f1115] text-gray-200">
                                 <option value="image">Image</option>
                                 <option value="video">Video</option>
                                 <option value="embed">Website</option>
@@ -272,7 +272,7 @@ export default async function MyAssetsPage({
                           </a>
                           <form action={moveAsset} className="flex items-center gap-1">
                             <input type="hidden" name="asset_id" value={asset.id} />
-                            <select name="folder_id" defaultValue={selectedFolderId ?? ""} className="rounded border border-gray-800 text-xs">
+                            <select name="folder_id" defaultValue={selectedFolderId ?? ""} className="rounded border border-gray-800 text-xs bg-[#0f1115] text-gray-200">
                               <option value="">Root</option>
                               {folders.map((f) => (
                                 <option key={f.id} value={f.id}>

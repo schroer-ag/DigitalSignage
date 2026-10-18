@@ -112,7 +112,7 @@ export default async function ScreensPage() {
                   <td className="px-4 py-3">
                     <form action={assignUserToScreen} className="flex gap-2">
                       <input type="hidden" name="screen_id" value={screen.id} />
-                      <select name="user_id" className="rounded border border-gray-800 text-xs" required>
+                      <select name="user_id" className="rounded border border-gray-800 text-xs bg-[#0f1115] text-gray-200" required>
                         <option value="">Choose a user…</option>
                         {users.map((u) => (
                           <option key={u.id} value={u.id}>
@@ -143,7 +143,7 @@ export default async function ScreensPage() {
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-gray-500">Branding</label>
-          <select name="branding_group" className="rounded border border-gray-800 px-2 py-1 text-sm" defaultValue="district">
+          <select name="branding_group" className="rounded border border-gray-800 px-2 py-1 text-sm bg-[#0f1115] text-gray-200" defaultValue="district">
             <option value="ffa">FFA</option>
             <option value="district">District</option>
           </select>

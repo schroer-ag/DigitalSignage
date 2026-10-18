@@ -176,7 +176,7 @@ export default async function MyPagesPage({
                         <div className="flex items-center justify-end gap-2">
                           <form action={movePage} className="flex items-center gap-1">
                             <input type="hidden" name="page_id" value={page.id} />
-                            <select name="folder_id" defaultValue={selectedFolderId ?? ""} className="rounded border border-gray-800 text-xs">
+                            <select name="folder_id" defaultValue={selectedFolderId ?? ""} className="rounded border border-gray-800 text-xs bg-[#0f1115] text-gray-200">
                               <option value="">Root</option>
                               {folders.map((f) => (
                                 <option key={f.id} value={f.id}>
