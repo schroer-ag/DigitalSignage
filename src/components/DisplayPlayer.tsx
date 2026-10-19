@@ -80,6 +80,12 @@ export function DisplayPlayer({
   const safeIndex = items.length === 0 ? 0 : index % items.length;
   const current = items[safeIndex] ?? null;
 
+  // Preload the item that's coming up next so a slow connection has
+  // already fetched it by the time it's its turn -- avoids a blank
+  // flash or a video that stalls waiting to buffer. Only images and
+  // video benefit from this (embeds/calendar load their own content).
+  const nextItem = items.length > 1 ? items[(safeIndex + 1) % items.length] : null;
+
   const advance = useCallback(() => {
     setIndex((i) => (items.length === 0 ? 0 : (i + 1) % items.length));
   }, [items.length]);
@@ -147,6 +153,21 @@ export function DisplayPlayer({
       )}
       {current?.kind === "calendar_agenda" && (
         <CalendarAgenda events={current.calendarEvents ?? []} accentColor={brand.accent} />
+      )}
+      {nextItem?.kind === "image" && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={nextItem.url} alt="" aria-hidden="true" className="hidden" />
+      )}
+      {nextItem?.kind === "video" && (
+        <video
+          key={`preload-${nextItem.id}`}
+          src={nextItem.url}
+          preload="auto"
+          muted
+          playsInline
+          aria-hidden="true"
+          className="hidden"
+        />
       )}
       {debug && (
         <div className="absolute bottom-2 right-2 rounded bg-black/70 px-2 py-1 font-mono text-[10px] text-green-400">
