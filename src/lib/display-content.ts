@@ -1,5 +1,6 @@
 import { createServiceClient } from "@/lib/supabase/service";
 import { getUpcomingEvents } from "@/lib/google-calendar";
+import { resolveActiveSchedule } from "@/lib/schedule-resolution";
 import type { AssetKind, DisplayContent, DisplayItem } from "@/lib/signage-types";
 
 type PageRow = {
@@ -13,6 +14,18 @@ type ScreenRow = {
   name: string;
   branding_group: "ffa" | "district";
   screen_assignments: { page: PageRow | null } | { page: PageRow | null }[] | null;
+};
+
+type ScheduleRow = {
+  priority: number;
+  schedule_type: "recurring" | "date_range";
+  days_of_week: number[] | null;
+  start_time: string | null;
+  end_time: string | null;
+  starts_at: string | null;
+  ends_at: string | null;
+  created_at: string;
+  page: PageRow | null;
 };
 
 type AssetRow = { id: string; kind: AssetKind; url: string; label: string | null; days_ahead: number };
@@ -69,7 +82,21 @@ export async function getDisplayContent(
   const assignment = Array.isArray(row.screen_assignments)
     ? row.screen_assignments[0]
     : row.screen_assignments;
-  const page = assignment?.page ?? null;
+  const pushedPage = assignment?.page ?? null;
+
+  // Schedules are timed overrides on top of the manually-pushed page --
+  // whichever schedule is active right now (highest priority wins a tie)
+  // beats the push. Nothing active just means the push is what shows, same
+  // as before schedules existed.
+  const { data: scheduleRows } = await supabase
+    .from("schedules")
+    .select(
+      "priority, schedule_type, days_of_week, start_time, end_time, starts_at, ends_at, created_at, page:pages(id, name, items, updated_at)"
+    )
+    .eq("screen_id", screenId);
+
+  const activeSchedule = resolveActiveSchedule((scheduleRows ?? []) as unknown as ScheduleRow[]);
+  const page = activeSchedule?.page ?? pushedPage;
 
   if (!page) {
     return {

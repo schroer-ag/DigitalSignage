@@ -37,7 +37,7 @@ export default async function MyPagesPage({
   if (orgs.length === 0) {
     return (
       <div>
-        <h1 className="text-lg font-semibold">My Pages</h1>
+        <h1 className="text-lg font-semibold">Playlists</h1>
         <p className="mt-3 max-w-md rounded-md bg-amber-500/10 p-4 text-sm text-amber-300">
           You don&apos;t have access to FFA or District content yet. Ask your super admin to
           grant you access on the Users page.
@@ -73,9 +73,9 @@ export default async function MyPagesPage({
 
   return (
     <div>
-      <h1 className="text-lg font-semibold">My Pages</h1>
+      <h1 className="text-lg font-semibold">Playlists</h1>
       <p className="text-sm text-gray-500">
-        A page is a looping playlist of your assets. Build one, then push it to a screen you
+        A playlist is a looping set of your assets. Build one, then push it to a screen you
         have access to. Anyone with access to {org === "ffa" ? "FFA" : "District"} can edit it.
       </p>
 
@@ -136,7 +136,7 @@ export default async function MyPagesPage({
             <input type="hidden" name="org" value={org} />
             <input type="hidden" name="folder_id" value={selectedFolderId ?? ""} />
             <div className="flex flex-1 min-w-[220px] flex-col gap-1">
-              <label className="text-xs font-medium text-gray-500">New page name</label>
+              <label className="text-xs font-medium text-gray-500">New playlist name</label>
               <input
                 name="name"
                 required
@@ -145,7 +145,7 @@ export default async function MyPagesPage({
               />
             </div>
             <button className="rounded bg-teal-700 px-3 py-1.5 text-sm font-medium text-white hover:opacity-90">
-              Create page
+              Create playlist
             </button>
           </form>
 
@@ -153,7 +153,7 @@ export default async function MyPagesPage({
             <table className="w-full text-sm">
               <thead className="border-b border-gray-800 text-left text-xs uppercase text-gray-400">
                 <tr>
-                  <th className="px-4 py-2">Page</th>
+                  <th className="px-4 py-2">Playlist</th>
                   <th className="px-4 py-2">Items</th>
                   <th className="px-4 py-2">Total runtime</th>
                   <th className="px-4 py-2" />
@@ -200,7 +200,7 @@ export default async function MyPagesPage({
                 {pages.length === 0 && (
                   <tr>
                     <td colSpan={4} className="px-4 py-6 text-center text-gray-400">
-                      Nothing in this folder yet — create a page above.
+                      Nothing in this folder yet — create a playlist above.
                     </td>
                   </tr>
                 )}

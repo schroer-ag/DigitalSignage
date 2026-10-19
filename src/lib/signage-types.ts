@@ -65,3 +65,23 @@ export type DisplayContent = {
   // loop, regardless of what's assigned to the screen.
   emergencyMessage: string | null;
 };
+
+export type ScheduleType = "recurring" | "date_range";
+
+// A timed override: "show this page on this screen" for either a recurring
+// weekly window or a one-off date range. Resolution lives in
+// src/lib/schedule-resolution.ts.
+export type Schedule = {
+  id: string;
+  screen_id: string;
+  page_id: string;
+  schedule_type: ScheduleType;
+  priority: number;
+  days_of_week: number[] | null;
+  start_time: string | null;
+  end_time: string | null;
+  starts_at: string | null;
+  ends_at: string | null;
+  created_at: string;
+  updated_at: string;
+};

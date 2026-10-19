@@ -43,7 +43,7 @@ export default async function MyAssetsPage({
   if (orgs.length === 0) {
     return (
       <div>
-        <h1 className="text-lg font-semibold">My Assets</h1>
+        <h1 className="text-lg font-semibold">Assets</h1>
         <p className="mt-3 max-w-md rounded-md bg-amber-500/10 p-4 text-sm text-amber-300">
           You don&apos;t have access to FFA or District content yet. Ask your super admin to
           grant you access on the Users page.
@@ -79,9 +79,9 @@ export default async function MyAssetsPage({
 
   return (
     <div>
-      <h1 className="text-lg font-semibold">My Assets</h1>
+      <h1 className="text-lg font-semibold">Assets</h1>
       <p className="text-sm text-gray-500">
-        Images, videos, websites, and calendar agendas you can drop into a page. Anyone with
+        Images, videos, websites, and calendar agendas you can drop into a playlist. Anyone with
         access to {org === "ffa" ? "FFA" : "District"} can see and edit everything filed here.
       </p>
 

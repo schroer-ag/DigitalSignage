@@ -6,7 +6,7 @@ import { getUserOrgs } from "@/lib/require-role";
 import { revalidatePath } from "next/cache";
 import type { Org } from "@/lib/signage-types";
 
-// Folders are shared between My Assets and My Pages (same org, same
+// Folders are shared between Assets and Playlists (same org, same
 // tree), so these actions live on their own rather than under either.
 
 async function requireOrgMember(org: string): Promise<CurrentUser | null> {

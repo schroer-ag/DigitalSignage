@@ -5,8 +5,9 @@ import { usePathname } from "next/navigation";
 import { signOut } from "@/lib/auth-actions";
 
 const LINKS = [
-  { href: "/my/pages", label: "My Pages" },
-  { href: "/my/assets", label: "My Assets" },
+  { href: "/my/assets", label: "Assets" },
+  { href: "/my/pages", label: "Playlists" },
+  { href: "/my/schedules", label: "Schedules" },
 ];
 
 export function MyNav({ displayName, isSuperAdmin }: { displayName: string; isSuperAdmin: boolean }) {

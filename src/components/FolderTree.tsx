@@ -2,7 +2,7 @@ import Link from "next/link";
 import { brandingFor } from "@/lib/branding";
 import type { Folder, Org } from "@/lib/signage-types";
 
-// Shared by My Assets and My Pages -- same org, same folder tree, just a
+// Shared by Assets and Playlists -- same org, same folder tree, just a
 // different basePath. Server-rendered as plain links (?folder=<id> in the
 // URL) rather than client-side expand/collapse state, so it works exactly
 // like the rest of the app: no JS needed to browse it.

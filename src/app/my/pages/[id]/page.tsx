@@ -60,7 +60,7 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <Link href="/my/pages" className="text-xs text-gray-400 hover:underline">
-            ← My Pages
+            ← Playlists
           </Link>
           <form action={renamePage} className="mt-1 flex items-center gap-2">
             <input type="hidden" name="page_id" value={page.id} />
@@ -120,14 +120,14 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
               <span className="text-xs text-gray-400">seconds</span>
             </div>
             <button className="rounded border border-gray-700 px-2 py-1 text-xs font-medium hover:bg-gray-800">
-              Add to page
+              Add to playlist
             </button>
           </form>
           {assets.length === 0 && (
             <p className="px-3 pb-3 text-xs text-gray-400">
               No assets yet — add some from{" "}
               <Link href="/my/assets" className="text-teal-400 hover:underline">
-                My Assets
+                Assets
               </Link>
               .
             </p>
@@ -140,7 +140,7 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
           </div>
           {items.length === 0 && (
             <p className="px-4 py-6 text-center text-sm text-gray-400">
-              Nothing in this page yet — add an asset from the library.
+              Nothing in this playlist yet — add an asset from the library.
             </p>
           )}
           <div>

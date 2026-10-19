@@ -30,7 +30,7 @@ export default async function UsersPage() {
         People show up here automatically the first time they sign in with an allowed school
         account — there&apos;s no &quot;add a user&quot; step. Use the dropdown below to set
         someone&apos;s role, and the checkboxes to control which org&apos;s content (FFA,
-        District, or both) they can see and edit in My Assets / My Pages. A super admin always
+        District, or both) they can see and edit in Assets / Playlists / Schedules. A super admin always
         has both, regardless of these checkboxes.
       </p>
 

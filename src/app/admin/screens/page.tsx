@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { registerScreen, assignUserToScreen } from "./actions";
 import { CopyLinkButton } from "./CopyLinkButton";
 import { BrandingBadge } from "@/components/BrandingBadge";
+import { resolveActiveSchedule, type ScheduleTiming } from "@/lib/schedule-resolution";
 
 const ONLINE_WINDOW_MS = 2 * 60 * 1000; // 2 minutes
 
@@ -32,6 +33,8 @@ type ScreenRow = {
 
 type UserRow = { id: string; display_name: string | null; email: string };
 
+type ScheduleRow = ScheduleTiming & { id: string; screen_id: string; page: { name: string } | null };
+
 function currentPageName(row: ScreenRow): string | null {
   const assignment = Array.isArray(row.screen_assignments)
     ? row.screen_assignments[0]
@@ -42,7 +45,7 @@ function currentPageName(row: ScreenRow): string | null {
 export default async function ScreensPage() {
   const supabase = await createClient();
 
-  const [screensResult, usersResult] = await Promise.all([
+  const [screensResult, usersResult, schedulesResult] = await Promise.all([
     supabase
       .from("screens")
       .select(
@@ -50,10 +53,30 @@ export default async function ScreensPage() {
       )
       .order("name"),
     supabase.from("users").select("id, display_name, email").order("display_name"),
+    supabase
+      .from("schedules")
+      .select(
+        "id, screen_id, priority, schedule_type, days_of_week, start_time, end_time, starts_at, ends_at, created_at, page:pages(name)"
+      ),
   ]);
 
   const screens = (screensResult.data ?? []) as unknown as ScreenRow[];
   const users = (usersResult.data ?? []) as unknown as UserRow[];
+
+  // A schedule overriding the manual push should show here too, not just
+  // on the Schedules page -- otherwise this list quietly lies about what's
+  // actually on a screen whenever a schedule is live.
+  const schedulesByScreen = new Map<string, ScheduleRow[]>();
+  for (const row of (schedulesResult.data ?? []) as unknown as ScheduleRow[]) {
+    const list = schedulesByScreen.get(row.screen_id) ?? [];
+    list.push(row);
+    schedulesByScreen.set(row.screen_id, list);
+  }
+  const scheduledPageByScreen = new Map<string, string>();
+  for (const [screenId, rows] of schedulesByScreen) {
+    const winner = resolveActiveSchedule(rows);
+    if (winner?.page?.name) scheduledPageByScreen.set(screenId, winner.page.name);
+  }
 
   return (
     <div>
@@ -82,7 +105,8 @@ export default async function ScreensPage() {
           </thead>
           <tbody>
             {screens.map((screen) => {
-              const pageName = currentPageName(screen);
+              const scheduledName = scheduledPageByScreen.get(screen.id);
+              const pageName = scheduledName ?? currentPageName(screen);
               const online = isOnline(screen.last_seen_at);
 
               return (
@@ -102,7 +126,14 @@ export default async function ScreensPage() {
                       {screen.last_seen_at ? `last seen ${timeAgo(screen.last_seen_at)}` : "never seen"}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-gray-500">{pageName ?? "Nothing assigned"}</td>
+                  <td className="px-4 py-3 text-gray-500">
+                    {pageName ?? "Nothing assigned"}
+                    {scheduledName && (
+                      <span className="ml-1.5 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-400">
+                        scheduled
+                      </span>
+                    )}
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <code className="text-xs text-gray-400">{screen.id.slice(0, 8)}…</code>
