@@ -164,9 +164,17 @@ export default async function MyAssetsPage({
               <label className="text-xs font-medium text-gray-500">Link (or calendar email/ID for Calendar Agenda)</label>
               <input
                 name="url"
-                required
                 className="w-full rounded border border-gray-800 px-2 py-1 text-sm"
                 placeholder="https://... or name@group.calendar.google.com"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-gray-500">Or upload a file (Image/Video only)</label>
+              <input
+                type="file"
+                name="file"
+                accept="image/*,video/*"
+                className="rounded border border-gray-800 bg-[#0f1115] px-2 py-1 text-xs text-gray-200 file:mr-2 file:rounded file:border-0 file:bg-gray-800 file:px-2 file:py-1 file:text-xs file:text-gray-200"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -186,8 +194,9 @@ export default async function MyAssetsPage({
           </form>
           <p className="mt-1 text-xs text-gray-400">
             Added here: {org === "ffa" ? "FFA" : "District"} / {folderPath(folders, selectedFolderId)}.
-            For Calendar Agenda, the calendar must be public (Settings → Access permissions → Make
-            available to public) and must list the next 30 days automatically.
+            Either paste a link or upload a file -- if both are filled in, the uploaded file wins.
+            Uploads are capped at 50MB. For Calendar Agenda, the calendar must be public (Settings →
+            Access permissions → Make available to public) and must list the next 30 days automatically.
           </p>
 
           <div className="mt-4 overflow-x-auto rounded-lg border border-gray-800">
@@ -226,7 +235,16 @@ export default async function MyAssetsPage({
                             </div>
                             <div className="flex flex-1 min-w-[220px] flex-col gap-1">
                               <label className="text-xs font-medium text-gray-500">Link</label>
-                              <input name="url" required defaultValue={asset.url} className="w-full rounded border border-gray-800 px-2 py-1 text-sm" />
+                              <input name="url" defaultValue={asset.url} className="w-full rounded border border-gray-800 px-2 py-1 text-sm" />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="text-xs font-medium text-gray-500">Replace with a file</label>
+                              <input
+                                type="file"
+                                name="file"
+                                accept="image/*,video/*"
+                                className="rounded border border-gray-800 bg-[#0f1115] px-2 py-1 text-xs text-gray-200 file:mr-2 file:rounded file:border-0 file:bg-gray-800 file:px-2 file:py-1 file:text-xs file:text-gray-200"
+                              />
                             </div>
                             <div className="flex flex-col gap-1">
                               <label className="text-xs font-medium text-gray-500">Days ahead</label>
