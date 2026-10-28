@@ -23,6 +23,10 @@ export type Asset = {
   // today it pulls events for. Unused (but still present, default 30)
   // on every other kind.
   days_ahead: number;
+  // How long this asset stays on screen, pre-filled whenever it's added to
+  // a playlist (still editable per-playlist-item after that). Unused for
+  // kind "video" -- a video plays to its own end instead.
+  default_duration_seconds: number;
 };
 
 export type PageItem = {

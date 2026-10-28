@@ -16,6 +16,13 @@ function clampDaysAhead(raw: FormDataEntryValue | null): number {
   return Math.min(90, Math.max(1, Math.round(n)));
 }
 
+// Same idea, for the 1-300 range default_duration_seconds' check enforces.
+function clampDefaultDuration(raw: FormDataEntryValue | null): number {
+  const n = Number(raw ?? 10);
+  if (!Number.isFinite(n)) return 10;
+  return Math.min(300, Math.max(1, Math.round(n)));
+}
+
 async function uploadAssetFile(
   supabase: SupabaseClient,
   org: string,
@@ -63,6 +70,7 @@ export async function createAsset(formData: FormData) {
   const typedUrl = String(formData.get("url") ?? "").trim();
   const label = String(formData.get("label") ?? "").trim();
   const daysAhead = clampDaysAhead(formData.get("days_ahead"));
+  const defaultDuration = clampDefaultDuration(formData.get("default_duration_seconds"));
   const file = formData.get("file");
 
   const supabase = await createClient();
@@ -100,6 +108,7 @@ export async function createAsset(formData: FormData) {
     url,
     label: resolvedLabel || null,
     days_ahead: daysAhead,
+    default_duration_seconds: defaultDuration,
   });
 
   // A failed insert (RLS denial, a bad constraint, anything) used to just
@@ -121,6 +130,7 @@ export async function updateAsset(formData: FormData) {
   const org = String(formData.get("org") ?? "");
   const folderId = String(formData.get("folder_id") ?? "").trim() || null;
   const daysAhead = clampDaysAhead(formData.get("days_ahead"));
+  const defaultDuration = clampDefaultDuration(formData.get("default_duration_seconds"));
   const file = formData.get("file");
   if (!assetId) return;
 
@@ -154,7 +164,13 @@ export async function updateAsset(formData: FormData) {
 
   const { error } = await supabase
     .from("assets")
-    .update({ kind, url, label: resolvedLabel || null, days_ahead: daysAhead })
+    .update({
+      kind,
+      url,
+      label: resolvedLabel || null,
+      days_ahead: daysAhead,
+      default_duration_seconds: defaultDuration,
+    })
     .eq("id", assetId);
 
   if (error) bail(error.message);

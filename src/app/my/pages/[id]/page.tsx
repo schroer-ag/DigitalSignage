@@ -4,12 +4,12 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import {
   renamePage,
-  addItemToPage,
   removeItemFromPage,
   moveItem,
   pushPageToScreen,
 } from "./actions";
 import { SignagePreview } from "@/components/SignagePreview";
+import { AddItemForm } from "./AddItemForm";
 import type { Asset, PageItem } from "@/lib/signage-types";
 
 const KIND_ICON: Record<string, string> = { image: "🖼", video: "🎬", embed: "🌐", calendar_agenda: "📅" };
@@ -35,7 +35,7 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
     // under that org is fair game to add to it.
     supabase
       .from("assets")
-      .select("id, kind, url, label, org, folder_id")
+      .select("id, kind, url, label, org, folder_id, days_ahead, default_duration_seconds")
       .eq("org", page.org)
       .order("created_at", { ascending: false }),
     supabase.from("user_screen_access").select("screen:screens(id, name)").eq("user_id", user.id),
@@ -99,30 +99,7 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ id
           <div className="border-b border-gray-800 px-4 py-3 text-xs font-semibold uppercase text-gray-400">
             Asset library
           </div>
-          <form action={addItemToPage} className="flex flex-col gap-2 p-3">
-            <input type="hidden" name="page_id" value={page.id} />
-            <select name="asset_id" required className="rounded border border-gray-800 px-2 py-1 text-sm bg-[#0f1115] text-gray-200">
-              <option value="">Choose an asset…</option>
-              {assets.map((asset) => (
-                <option key={asset.id} value={asset.id}>
-                  {KIND_ICON[asset.kind] ?? ""} {asset.label ?? asset.url}
-                </option>
-              ))}
-            </select>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                name="duration_seconds"
-                defaultValue={10}
-                min={1}
-                className="w-20 rounded border border-gray-800 px-2 py-1 text-sm"
-              />
-              <span className="text-xs text-gray-400">seconds</span>
-            </div>
-            <button className="rounded border border-gray-700 px-2 py-1 text-xs font-medium hover:bg-gray-800">
-              Add to playlist
-            </button>
-          </form>
+          <AddItemForm pageId={page.id} assets={assets} />
           {assets.length === 0 && (
             <p className="px-3 pb-3 text-xs text-gray-400">
               No assets yet — add some from{" "}
