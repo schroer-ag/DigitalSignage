@@ -23,24 +23,6 @@ function clampDefaultDuration(raw: FormDataEntryValue | null): number {
   return Math.min(300, Math.max(1, Math.round(n)));
 }
 
-async function uploadAssetFile(
-  supabase: SupabaseClient,
-  org: string,
-  file: File
-): Promise<{ ok: true; url: string; path: string } | { ok: false; error: string }> {
-  const ext = file.name.includes(".") ? file.name.split(".").pop() : "";
-  const path = `${org}/${crypto.randomUUID()}${ext ? `.${ext}` : ""}`;
-
-  const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(path, file, {
-    contentType: file.type || undefined,
-    upsert: false,
-  });
-  if (error) return { ok: false, error: error.message };
-
-  const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-  return { ok: true, url: data.publicUrl, path };
-}
-
 // If `url` points at our own uploads bucket, pull the storage path back out
 // of the public URL so it can be deleted -- a link pasted from Drive,
 // YouTube, etc. never matches this and is left alone (we don't own it).
@@ -71,7 +53,13 @@ export async function createAsset(formData: FormData) {
   const label = String(formData.get("label") ?? "").trim();
   const daysAhead = clampDaysAhead(formData.get("days_ahead"));
   const defaultDuration = clampDefaultDuration(formData.get("default_duration_seconds"));
-  const file = formData.get("file");
+  // The file itself already went straight from the browser to Supabase
+  // Storage (see AssetForm.tsx) -- a Vercel serverless function has a hard
+  // ~4.5MB request body cap that no Next.js config can lift, so the file
+  // bytes never come through this Server Action. Only the resulting
+  // (small) public URL does.
+  const fileUrl = String(formData.get("file_url") ?? "").trim();
+  const fileName = String(formData.get("file_name") ?? "").trim();
 
   const supabase = await createClient();
 
@@ -81,18 +69,14 @@ export async function createAsset(formData: FormData) {
     redirect(`/my/assets?${params.toString()}`);
   };
 
-  // A file only makes sense for image/video -- an embed or calendar asset
-  // is always a link, so a file picked while one of those is selected (or
-  // left over from switching kinds) is just ignored rather than erroring.
+  // An uploaded file only makes sense for image/video -- an embed or
+  // calendar asset is always a link, so a leftover file_url from switching
+  // kinds is just ignored rather than erroring.
   let url = typedUrl;
   let resolvedLabel = label;
-  if (file instanceof File && file.size > 0 && (kind === "image" || kind === "video")) {
-    const uploaded = await uploadAssetFile(supabase, org, file);
-    if (!uploaded.ok) bail(uploaded.error);
-    else {
-      url = uploaded.url;
-      if (!resolvedLabel) resolvedLabel = file.name;
-    }
+  if (fileUrl && (kind === "image" || kind === "video")) {
+    url = fileUrl;
+    if (!resolvedLabel) resolvedLabel = fileName;
   }
 
   if (!url) bail("Add a link or upload a file.");
@@ -131,7 +115,8 @@ export async function updateAsset(formData: FormData) {
   const folderId = String(formData.get("folder_id") ?? "").trim() || null;
   const daysAhead = clampDaysAhead(formData.get("days_ahead"));
   const defaultDuration = clampDefaultDuration(formData.get("default_duration_seconds"));
-  const file = formData.get("file");
+  const fileUrl = String(formData.get("file_url") ?? "").trim();
+  const fileName = String(formData.get("file_name") ?? "").trim();
   if (!assetId) return;
 
   const supabase = await createClient();
@@ -142,7 +127,7 @@ export async function updateAsset(formData: FormData) {
     redirect(`/my/assets?${params.toString()}`);
   };
 
-  // Need the row's current url up front: if this edit uploads a new file
+  // Need the row's current url up front: if this edit uploaded a new file
   // (or otherwise changes the url), the old uploaded file -- if it was one
   // of ours -- gets cleaned up after the update succeeds, same reasoning
   // as deleteAsset below.
@@ -151,13 +136,9 @@ export async function updateAsset(formData: FormData) {
 
   let url = typedUrl;
   let resolvedLabel = label;
-  if (file instanceof File && file.size > 0 && (kind === "image" || kind === "video")) {
-    const uploaded = await uploadAssetFile(supabase, org, file);
-    if (!uploaded.ok) bail(uploaded.error);
-    else {
-      url = uploaded.url;
-      if (!resolvedLabel) resolvedLabel = file.name;
-    }
+  if (fileUrl && (kind === "image" || kind === "video")) {
+    url = fileUrl;
+    if (!resolvedLabel) resolvedLabel = fileName;
   }
 
   if (!url) bail("Add a link or upload a file.");
